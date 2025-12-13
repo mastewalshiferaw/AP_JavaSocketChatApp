@@ -17,25 +17,33 @@ public class ReadThread extends Thread {
             reader = new BufferedReader(new InputStreamReader(input));
         } catch (IOException ex) {
             System.out.println("Error getting input stream: " + ex.getMessage());
-            ex.printStackTrace();
         }
     }
 
+    @Override
     public void run() {
         while (true) {
             try {
                 String response = reader.readLine();
-                if (response == null) break;
+                if (response == null) {
+                    System.out.println("\nDisconnected from the server.");
+                    break;
+                }
                 System.out.println("\n" + response);
-
                 if (client.getUserName() != null) {
                     System.out.print("[" + client.getUserName() + "]: ");
                 }
             } catch (IOException ex) {
-                System.out.println("Error reading from server: " + ex.getMessage());
-                ex.printStackTrace();
+                if (!socket.isClosed()) {
+                    System.out.println("Error reading from server: " + ex.getMessage());
+                }
                 break;
             }
+        }
+        try {
+            socket.close();
+        } catch (IOException e) {
+            System.err.println("Error closing socket in ReadThread: " + e.getMessage());
         }
     }
 }

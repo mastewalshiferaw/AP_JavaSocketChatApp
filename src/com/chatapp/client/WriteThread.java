@@ -18,32 +18,36 @@ public class WriteThread extends Thread {
             writer = new PrintWriter(output, true);
         } catch (IOException ex) {
             System.out.println("Error getting output stream: " + ex.getMessage());
-            ex.printStackTrace();
         }
     }
 
+    @Override
     public void run() {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.print("Enter your name: ");
-        String userName = scanner.nextLine();
-        client.setUserName(userName);
-        writer.println(userName);
+        if (client.getUserName() == null) {
+            System.out.print("Enter your name: ");
+            String userName = scanner.nextLine();
+            client.setUserName(userName);
+            writer.println(userName);
+        } else {
+            writer.println(client.getUserName());
+        }
 
         String text;
 
         do {
-            System.out.print("[" + userName + "]: ");
+            System.out.print("[" + client.getUserName() + "]: ");
             text = scanner.nextLine();
             writer.println(text);
-
         } while (!text.equalsIgnoreCase("bye"));
 
         try {
             socket.close();
         } catch (IOException ex) {
-            System.out.println("Error writing to server: " + ex.getMessage());
+            System.out.println("Error closing socket in WriteThread: " + ex.getMessage());
         }
+
         scanner.close();
     }
 }
